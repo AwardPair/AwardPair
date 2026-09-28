@@ -55,14 +55,36 @@ Homepage headline: "Find the trip your points and perks were meant for."
 
 ## Current state (update as milestones land)
 
-- **A live AwardPair Supabase project is now connected** (org `AwardPair`,
-  project ref `ykxkyoddeoqaobqufqzm`, `https://ykxkyoddeoqaobqufqzm.supabase.co`).
-  `supabase/migrations/0001_init.sql` has been applied to it — 22 tables,
-  RLS enabled on all of them, zero security advisor findings. The
-  earlier `Poplex`/`Card-scan` project was a different, unrelated product
-  and was never used. No auth/client wiring (`@supabase/ssr`, env vars)
-  exists yet — that's M10. The service role key has not been fetched or
-  stored anywhere in this repo/session.
+- **A live AwardPair Supabase project is connected and wired up** (org
+  `AwardPair`, project ref `ykxkyoddeoqaobqufqzm`,
+  `https://ykxkyoddeoqaobqufqzm.supabase.co`). `supabase/migrations/`
+  0001 (full schema, RLS on every table) and 0002 (seeds `card_issuers`/
+  `card_products` — the only reference data actually in the DB so far;
+  everything else still comes from `src/lib/fixtures/`) are applied.
+  Zero security-advisor findings; RLS policy definitions reviewed
+  directly (`auth.uid() = user_id` on every user-owned table).
+- **Supabase Auth (email magic link) is wired up** — `src/lib/supabase/`
+  (`client.ts`/`server.ts`/`proxy.ts`), root `proxy.ts` (Next.js 16
+  renamed `middleware.ts` → `proxy.ts`), `/auth/sign-in`,
+  `/auth/callback` (PKCE `exchangeCodeForSession`), `/auth/error`. Only
+  `/wallet` requires auth (page-level redirect); everything else stays
+  public by design. **Manual step still needed from the user**: add the
+  app's URL(s) to Supabase Auth → URL Configuration → Redirect URLs
+  (e.g. `http://localhost:3000/**` and the Vercel deployment's
+  `/**`) — no tool here can set that, and magic links won't complete
+  without it.
+- **My Wallet (`/wallet`) is real**, not a preview: signed-in users
+  add/remove cards from the seeded `card_products` and set benefit
+  preferences, both persisted via Server Actions in
+  `src/app/wallet/actions.ts` against RLS-protected tables. It is not
+  yet wired into the Pairs/Explore economics — that still runs on the
+  fixture-driven `demoPairingContext()` in `src/lib/search/`
+  regardless of who's signed in. Connecting a real wallet to the
+  pairing engine is a natural next step, not done here.
+- The root layout calls `supabase.auth.getUser()` to render the nav's
+  signed-in state, which makes every page dynamically rendered (no more
+  static prerendering of `/`) — an intentional trade-off; see
+  docs/architecture.md.
 - No live flight/hotel-rate provider is integrated. All data comes from
   `MockFlightAvailabilityProvider` / `MockHotelRateProvider` behind the
   `FlightAvailabilityProvider` / `HotelRateProvider` interfaces in

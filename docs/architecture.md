@@ -141,3 +141,55 @@ done here. The service role key was not fetched or stored.
   differs materially from the more commonly documented v8
   (`useReactTable`/`getCoreRowModel`). Follow the installed package's own
   bundled docs, not v8 examples, for any future changes here.
+
+### ADR-0003: M10 auth (Supabase magic link) and My Wallet
+
+- **PKCE code-exchange over token_hash.** Supabase's SSR docs show two
+  patterns for email sign-in: a `token_hash`/`verifyOtp` confirm route
+  (needs a one-time email-template edit in the dashboard) and a PKCE
+  `code`/`exchangeCodeForSession` callback (works with Supabase's
+  default email template, since `@supabase/ssr` clients default to
+  PKCE). Chose the PKCE route specifically to avoid requiring a manual
+  dashboard template edit — the only manual step left is adding the
+  app's redirect URL(s) to Supabase's allow-list, which is unavoidable
+  either way.
+- **`proxy.ts`, not `middleware.ts`.** Next.js 16.3.x deprecated
+  `middleware.ts` in favor of `proxy.ts` (same behavior, renamed file +
+  exported function) — verified independently via Next.js's own docs
+  before writing it, not assumed from the Supabase example.
+- **Auth is opt-in per route, not blanket.** Supabase's own example
+  proxy redirects any unauthenticated request to `/login`. AwardPair's
+  proxy (`src/lib/supabase/proxy.ts`) only refreshes the session
+  cookie; `/wallet` is the only route that requires auth, enforced at
+  the page level (`redirect("/auth/sign-in?next=/wallet")`), because
+  Explore/Pairs/Calendar are public by design (see docs/product.md).
+- **Root layout now calls `getUser()` on every request** (to show the
+  nav's signed-in state), which forces the whole app to render
+  dynamically — `/` was previously statically prerendered. This is a
+  deliberate trade-off: per Supabase's own SSR guidance, mixing
+  ISR/static caching with auth-cookie-aware rendering risks leaking one
+  user's session to another via a cached `Set-Cookie` response, so
+  dynamic-by-default is the safer choice at this scale. Revisit only
+  with real traffic data (spec §33: measure before optimizing).
+- **DB seeding is intentionally minimal.** Only `card_issuers`/
+  `card_products` (with a `slug` column matching the existing TS
+  fixture id strings) were seeded — just enough for My Wallet's card
+  picker. The full reference catalog (hotels, hotel programs,
+  memberships, benefits, offers, mileage programs, airports, award/rate
+  observations) stays fixture-only; the search/pairing engine doesn't
+  read from the DB at all yet, so seeding the rest now would be unused.
+- **Wallet is not wired into pairing yet.** `demoPairingContext()` in
+  `src/lib/search/demoContext.ts` still assumes every demo card
+  regardless of who's signed in. A real user's wallet selections
+  (mapped DB card_product → TS fixture `CardBenefitRule` by matching
+  `slug`) need to flow into `searchPairs`/`buildPairs` for the wallet to
+  actually affect Pair economics — left as a follow-up, not attempted
+  in this pass.
+- **RLS verified statically, not dynamically.** With zero real
+  `auth.users` rows yet, cross-user isolation was verified by reading
+  each policy's `USING`/`WITH CHECK` SQL directly from `pg_policies`
+  (all read `auth.uid() = user_id`, or `= id` for `user_profiles`) plus
+  a clean Supabase security-advisor run, rather than fabricating
+  `auth.users` rows by hand (risky: that table has internal constraints
+  and triggers not worth bypassing for a test). Full dynamic
+  verification happens naturally once two real users have wallet data.

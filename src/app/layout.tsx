@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -24,7 +25,10 @@ export const metadata: Metadata = {
     "AwardPair pairs award-flight opportunities with compatible premium-hotel stays, your card benefits, and verified promotions, so you can see the full value of a trip in one place.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+
   return (
     <html
       lang="en"
@@ -32,7 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col">
         <NuqsAdapter>
-          <Nav />
+          <Nav userEmail={data.user?.email ?? null} />
           <main className="flex flex-1 flex-col">{children}</main>
           <Footer />
         </NuqsAdapter>

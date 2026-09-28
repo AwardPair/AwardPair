@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, Plane, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils/cn";
+import { signOut } from "@/app/auth/actions";
 
 const NAV_ITEMS = [
   { href: "/explore", label: "Explore" },
@@ -13,7 +14,7 @@ const NAV_ITEMS = [
   { href: "/wallet", label: "My Wallet" },
 ] as const;
 
-export function Nav() {
+export function Nav({ userEmail }: { userEmail: string | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -51,10 +52,26 @@ export function Nav() {
           ))}
         </nav>
 
-        <div className="hidden md:block">
-          <Button variant="secondary" size="sm">
-            Sign In / Account
-          </Button>
+        <div className="hidden md:flex md:items-center md:gap-2">
+          {userEmail ? (
+            <>
+              <span className="max-w-[12rem] truncate text-sm text-muted-foreground" title={userEmail}>
+                {userEmail}
+              </span>
+              <form action={signOut}>
+                <Button variant="secondary" size="sm" type="submit">
+                  Sign out
+                </Button>
+              </form>
+            </>
+          ) : (
+            <Link
+              href="/auth/sign-in"
+              className="inline-flex h-9 items-center justify-center rounded-[var(--radius-md)] border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              Sign In / Account
+            </Link>
+          )}
         </div>
 
         <button
@@ -88,13 +105,24 @@ export function Nav() {
             </Link>
           ))}
           <div className="mt-2 border-t border-border pt-3">
-            <Button
-              variant="secondary"
-              className="w-full justify-center"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sign In / Account
-            </Button>
+            {userEmail ? (
+              <div className="flex flex-col gap-2">
+                <span className="truncate px-3 text-sm text-muted-foreground">{userEmail}</span>
+                <form action={signOut}>
+                  <Button variant="secondary" type="submit" className="w-full justify-center">
+                    Sign out
+                  </Button>
+                </form>
+              </div>
+            ) : (
+              <Link
+                href="/auth/sign-in"
+                onClick={() => setIsMenuOpen(false)}
+                className="flex h-11 w-full items-center justify-center rounded-[var(--radius-md)] border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                Sign In / Account
+              </Link>
+            )}
           </div>
         </nav>
       </div>

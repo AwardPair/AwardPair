@@ -2,8 +2,10 @@
 
 ## Status
 
-No deployment has been made yet. This document will be updated as
-milestones M12–M14 land.
+Deployed. Vercel project `award-pair/awardpair` is linked to
+`AwardPair/AwardPair` on GitHub; every push to `claude/peaceful-brown-cn8p0i`
+auto-deploys to `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app`.
+This document will be updated further as milestones M12–M14 land.
 
 ## Target hosting
 
@@ -23,24 +25,41 @@ milestones M12–M14 land.
 5. Preview deployment is verified before any production domain is pointed
    at a build.
 
-## Supabase project (connected)
+## Supabase project (connected and wired up)
 
 - Project: org `AwardPair`, ref `ykxkyoddeoqaobqufqzm`.
 - URL: `https://ykxkyoddeoqaobqufqzm.supabase.co`.
-- `supabase/migrations/0001_init.sql` is applied (22 tables, RLS enabled
-  everywhere, no security advisor findings). No data is seeded and no
-  application code talks to it yet — that starts at M10 (Supabase Auth +
-  `@supabase/ssr` + My Wallet).
-- The service role key has not been fetched/stored in this session; it
-  will be needed server-only once M10 wires up real writes, and must
-  never be exposed to the client.
+- `supabase/migrations/0001_init.sql` (schema, RLS on every table) and
+  `0002_seed_card_catalog.sql` (the two DEMO card issuers/products My
+  Wallet needs) are applied. Zero security-advisor findings.
+- Supabase Auth (email magic link via `@supabase/ssr`, PKCE) and My
+  Wallet (`/wallet`) are wired up and live — see CLAUDE.md and
+  docs/architecture.md ADR-0003 for how.
+- The service role key has not been fetched/stored anywhere in this
+  repo/session; nothing server-side needs it yet (RLS + the user's own
+  session cookie cover every current write path).
 
-## Open items requiring the user
+## Vercel project (connected and wired up)
 
-- **Vercel project linkage.** No Vercel CLI session/project link has been
-  established in this environment yet. Needed before a preview deploy can
-  be triggered from here.
-- Environment variables (`NEXT_PUBLIC_SUPABASE_URL`,
-  `NEXT_PUBLIC_SUPABASE_ANON_KEY`/publishable key, server-only service
-  role key) are documented above but not yet wired into the app or a
-  Vercel project — that lands with M10's auth work.
+- Team: `AwardPair` (`award-pair`), project `awardpair`
+  (`prj_rgbkOXemB9IPJfEkyE3p9ibF2uOu`), linked to the `AwardPair/AwardPair`
+  GitHub repo via Vercel's GitHub App.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are
+  set on the Vercel project for all environments (production/preview/
+  development) — same values as `.env.local` (gitignored; real values
+  aren't secret, see `.env.example` for the shape).
+- Every push to `claude/peaceful-brown-cn8p0i` triggers a new preview
+  deployment at the stable branch alias above. No production domain is
+  configured — by design for now, per the user ("just use the domain
+  they provide").
+
+## Open item requiring the user
+
+- **Supabase Auth redirect URL allow-list.** Go to the Supabase
+  dashboard → Authentication → URL Configuration, and add this app's
+  URL(s) to **Redirect URLs** (e.g. `http://localhost:3000/**` for local
+  dev and `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app/**`
+  for the deployed branch — add the production domain's `/**` too once
+  one exists). No tool available here can set this (it's a dashboard-only
+  setting); magic-link sign-in will redirect to `/auth/error` until it's
+  added.
