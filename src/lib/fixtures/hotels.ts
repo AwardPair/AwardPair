@@ -27,6 +27,14 @@ export const DEMO_HOTELS: Record<string, Hotel> = {
   PENINSULA_TOKYO: { id: "hotel-peninsula-tokyo", name: "The Peninsula Tokyo", city: "Tokyo", countryCode: "JP" },
 };
 
+export const DEMO_HOTELS_BY_ID: Record<string, Hotel> = Object.fromEntries(
+  Object.values(DEMO_HOTELS).map((hotel) => [hotel.id, hotel]),
+);
+
+export function demoHotelsForCity(city: string): Hotel[] {
+  return Object.values(DEMO_HOTELS).filter((hotel) => hotel.city === city);
+}
+
 const VERIFIED_AT = "2026-09-01T00:00:00Z";
 
 export const DEMO_HOTEL_MEMBERSHIPS: HotelProgramMembership[] = [
