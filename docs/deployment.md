@@ -3,9 +3,14 @@
 ## Status
 
 Deployed. Vercel project `award-pair/awardpair` is linked to
-`AwardPair/AwardPair` on GitHub; every push to `claude/peaceful-brown-cn8p0i`
-auto-deploys to `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app`.
-This document will be updated further as milestones M12–M14 land.
+`AwardPair/AwardPair` on GitHub. Live at **https://awardpair.vercel.app**
+(also aliased as `awardpair-award-pair.vercel.app`); every push to
+`claude/peaceful-brown-cn8p0i` auto-deploys there and to the branch-specific
+preview `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app`.
+`claude/peaceful-brown-cn8p0i` was deployed directly as the `production`
+target (not via the GitHub repo's own `main` branch, which is still just the
+initial commit) so the plain default domain serves the real app rather than
+404ing. This document will be updated further as milestones M12–M14 land.
 
 ## Target hosting
 
@@ -48,18 +53,18 @@ This document will be updated further as milestones M12–M14 land.
   set on the Vercel project for all environments (production/preview/
   development) — same values as `.env.local` (gitignored; real values
   aren't secret, see `.env.example` for the shape).
-- Every push to `claude/peaceful-brown-cn8p0i` triggers a new preview
-  deployment at the stable branch alias above. No production domain is
-  configured — by design for now, per the user ("just use the domain
-  they provide").
+- Every push to `claude/peaceful-brown-cn8p0i` triggers a new deployment.
+  Because this branch was also pushed as the Vercel `production` target
+  (see Status above), a push updates both `awardpair.vercel.app` and the
+  branch-specific preview URL. No custom/purchased domain is configured —
+  by design for now, per the user ("just use the domain they provide").
 
 ## Open item requiring the user
 
 - **Supabase Auth redirect URL allow-list.** Go to the Supabase
   dashboard → Authentication → URL Configuration, and add this app's
   URL(s) to **Redirect URLs** (e.g. `http://localhost:3000/**` for local
-  dev and `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app/**`
-  for the deployed branch — add the production domain's `/**` too once
-  one exists). No tool available here can set this (it's a dashboard-only
-  setting); magic-link sign-in will redirect to `/auth/error` until it's
-  added.
+  dev, `https://awardpair.vercel.app/**`, and
+  `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app/**`).
+  No tool available here can set this (it's a dashboard-only setting);
+  magic-link sign-in will redirect to `/auth/error` until it's added.
