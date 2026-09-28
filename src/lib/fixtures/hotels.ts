@@ -27,6 +27,10 @@ export const DEMO_HOTELS: Record<string, Hotel> = {
   PENINSULA_TOKYO: { id: "hotel-peninsula-tokyo", name: "The Peninsula Tokyo", city: "Tokyo", countryCode: "JP" },
 };
 
+export const DEMO_HOTEL_PROGRAMS_BY_ID: Record<string, HotelProgram> = Object.fromEntries(
+  Object.values(DEMO_HOTEL_PROGRAMS).map((program) => [program.id, program]),
+);
+
 export const DEMO_HOTELS_BY_ID: Record<string, Hotel> = Object.fromEntries(
   Object.values(DEMO_HOTELS).map((hotel) => [hotel.id, hotel]),
 );

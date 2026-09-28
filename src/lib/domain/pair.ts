@@ -23,6 +23,8 @@ export interface Pair {
   id: string;
   flight: FlightOpportunity;
   hotelStay: HotelStayOpportunity;
+  /** Which of the hotel's active program memberships this Pair's economics/benefits were computed under. */
+  programId: string;
   appliedBenefits: (HotelProgramBenefit | HotelPropertyBenefit | CardBenefitRule)[];
   applicableOffers: HotelOffer[];
   economics: HotelEconomics;

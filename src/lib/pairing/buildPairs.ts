@@ -117,6 +117,7 @@ export function buildPairs(params: {
         id: `${flight.id}__${stay.id}__${best.membership.programId}`,
         flight,
         hotelStay: stay,
+        programId: best.membership.programId,
         appliedBenefits: [...appliedBenefitObjects, ...appliedCardRules],
         applicableOffers: appliedOfferObjects,
         economics: best.economics,
