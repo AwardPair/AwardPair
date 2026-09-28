@@ -2,15 +2,27 @@
 
 ## Status
 
-Deployed. Vercel project `award-pair/awardpair` is linked to
-`AwardPair/AwardPair` on GitHub. Live at **https://awardpair.vercel.app**
-(also aliased as `awardpair-award-pair.vercel.app`); every push to
-`claude/peaceful-brown-cn8p0i` auto-deploys there and to the branch-specific
-preview `https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app`.
+Deployed and publicly viewable. Vercel project `award-pair/awardpair` is
+linked to `AwardPair/AwardPair` on GitHub. Live at
+**https://awardpair.vercel.app** (also aliased as
+`awardpair-award-pair.vercel.app`); every push to `claude/peaceful-brown-cn8p0i`
+auto-deploys there and to the branch-specific preview
+`https://awardpair-git-claude-peaceful-brown-cn8p0i-award-pair.vercel.app`.
 `claude/peaceful-brown-cn8p0i` was deployed directly as the `production`
 target (not via the GitHub repo's own `main` branch, which is still just the
 initial commit) so the plain default domain serves the real app rather than
-404ing. This document will be updated further as milestones M12–M14 land.
+404ing.
+
+**Vercel Authentication (SSO Protection) is scoped to preview deployments
+only** (`ssoProtection.deploymentType: "preview"`), not production. This was
+a deliberate change: with it applied to production, only accounts that are
+members of the `award-pair` Vercel team could view the live URL at all —
+anyone else (including the project owner's own everyday Vercel login) hit a
+"Request access... Team owners emailed" gate, and there is no team-invite or
+access-approval endpoint exposed to this environment's Vercel tooling to
+resolve that any other way. Production is now open to anyone with the URL;
+preview deployments (branch/PR previews) still require team-member SSO. This
+document will be updated further as milestones M12–M14 land.
 
 ## Target hosting
 
