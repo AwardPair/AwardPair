@@ -43,6 +43,12 @@ test.describe("Explore — Pairs (default)", () => {
     expect(response?.status()).toBeLessThan(500);
     await expect(page.getByRole("heading", { name: /pair not found/i })).toBeVisible();
   });
+
+  test("the Pairs tab prompts signed-out visitors to sign in before saving a search", async ({ page }) => {
+    await page.goto("/explore");
+    await expect(page.getByRole("link", { name: "Sign in", exact: true })).toBeVisible();
+    await expect(page.getByText(/save this search and get alerted/i)).toBeVisible();
+  });
 });
 
 test.describe("Pair Calendar", () => {

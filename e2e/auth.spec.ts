@@ -37,4 +37,9 @@ test.describe("Sign in", () => {
     await page.goto("/wallet");
     await expect(page).toHaveURL(/\/auth\/sign-in\?next=\/wallet$/);
   });
+
+  test("/alerts redirects signed-out visitors to sign-in and remembers where to return", async ({ page }) => {
+    await page.goto("/alerts");
+    await expect(page).toHaveURL(/\/auth\/sign-in\?next=\/alerts$/);
+  });
 });
