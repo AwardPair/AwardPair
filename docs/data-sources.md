@@ -67,12 +67,14 @@ implementation).
 
 ## Supabase project
 
-- **No AwardPair Supabase project is linked yet.** The only Supabase
-  project visible from this environment (`Poplex`, under the `Card-scan`
-  org) is an unrelated existing product and must not be used to store
-  AwardPair data. Migrations are versioned in `supabase/migrations/` and
-  applied nowhere until the user designates or creates a real AwardPair
-  project (see `docs/deployment.md`).
+- **The real AwardPair Supabase project is connected** (org `AwardPair`,
+  ref `ykxkyoddeoqaobqufqzm`) and `supabase/migrations/0001_init.sql` is
+  applied to it — see `docs/deployment.md`. It is schema-only: no
+  reference data (airports, programs, benefits, etc.) has been seeded
+  into it, and the app still reads from the in-memory mock
+  fixtures/providers under `src/lib/` for every milestone through M9. The
+  earlier `Poplex`/`Card-scan` project was a different, unrelated
+  product and was never used for AwardPair data.
 
 ## Legal/commercial constraints to keep in mind
 

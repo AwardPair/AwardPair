@@ -94,17 +94,22 @@ Material decisions that diverge from or add detail to the master spec are
 logged below inline (kept lightweight; promote to separate ADR files if
 this section grows unwieldy).
 
-### ADR-0001: No AwardPair Supabase project provisioned yet
+### ADR-0001: AwardPair Supabase project connected and schema applied
 
-The only Supabase project reachable via this environment's Supabase
-integration (`Poplex`, org `Card-scan`) is an unrelated pre-existing
-product. Rather than create a new project unprompted (external-account
-action) or misuse the unrelated one, schema work through M9 stays as
-migration files only. A real project will be created/designated when M10
-(auth) is reached, with the user's confirmation. **Update:** the user is
-in the process of connecting the correct AwardPair Supabase account —
-once that's confirmed reachable, `supabase/migrations/0001_init.sql` gets
-applied to it and this note updates.
+Initially, the only Supabase project reachable via this environment's
+Supabase integration (`Poplex`, org `Card-scan`) was an unrelated
+pre-existing product, so schema work through M9 stayed as migration
+files only rather than being applied anywhere. The user then connected
+the correct AwardPair Supabase account. `supabase/migrations/0001_init.sql`
+has since been applied to the real project (org `AwardPair`, project ref
+`ykxkyoddeoqaobqufqzm`, `https://ykxkyoddeoqaobqufqzm.supabase.co`) —
+22 tables, RLS enabled on every one, `get_advisors(type: "security")`
+returned zero findings. The project is currently empty of data (schema
+only); no reference fixtures have been seeded into it, and no
+application code reads from or writes to it yet — the app still runs
+entirely on the in-memory mock providers/fixtures under `src/lib/`. Auth
+wiring (`@supabase/ssr`, env vars, a real client) is M10's job, not
+done here. The service role key was not fetched or stored.
 
 ### ADR-0002: Explore page, Pair detail, and Flights table implementation notes
 

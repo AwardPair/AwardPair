@@ -55,14 +55,14 @@ Homepage headline: "Find the trip your points and perks were meant for."
 
 ## Current state (update as milestones land)
 
-- **No live Supabase project is linked to AwardPair yet.** The only
-  Supabase project reachable from this environment (`Poplex` /
-  `Card-scan` org) belongs to a different, unrelated product and must
-  never be used for AwardPair data. Schema lives as versioned SQL
-  migrations in `supabase/migrations/` and has **not** been applied
-  anywhere. Before M10 (auth), a real AwardPair Supabase project must be
-  created or an existing one designated by the user — ask before assuming
-  one.
+- **A live AwardPair Supabase project is now connected** (org `AwardPair`,
+  project ref `ykxkyoddeoqaobqufqzm`, `https://ykxkyoddeoqaobqufqzm.supabase.co`).
+  `supabase/migrations/0001_init.sql` has been applied to it — 22 tables,
+  RLS enabled on all of them, zero security advisor findings. The
+  earlier `Poplex`/`Card-scan` project was a different, unrelated product
+  and was never used. No auth/client wiring (`@supabase/ssr`, env vars)
+  exists yet — that's M10. The service role key has not been fetched or
+  stored anywhere in this repo/session.
 - No live flight/hotel-rate provider is integrated. All data comes from
   `MockFlightAvailabilityProvider` / `MockHotelRateProvider` behind the
   `FlightAvailabilityProvider` / `HotelRateProvider` interfaces in
