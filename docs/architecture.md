@@ -193,3 +193,38 @@ done here. The service role key was not fetched or stored.
   `auth.users` rows by hand (risky: that table has internal constraints
   and triggers not worth bypassing for a test). Full dynamic
   verification happens naturally once two real users have wallet data.
+
+### ADR-0004: M11 saved searches + alerts, evaluated on demand
+
+- **Reused the existing `saved_searches`/`alerts`/`alert_events` schema
+  from `supabase/migrations/0001_init.sql`** — it was already applied to
+  the live project as part of M2 but never had application code written
+  against it. No new migration was needed.
+- **A saved search's `params` column stores the exact same
+  `ExploreSearchParams` shape `/explore`'s URL produces**
+  (`exploreParamsToRawRecord()` in `src/lib/search/parseExploreSearchParams.ts`),
+  round-tripped back through `parseExploreSearchParams()` when evaluating —
+  so a saved search gets identical defaulting/validation to a live URL
+  instead of a second, divergent parsing path.
+- **No background evaluation.** CLAUDE.md is explicit that Cloudflare
+  Workers/Queues (or any cron/queue) are a later milestone, not introduced
+  speculatively. Alerts are instead evaluated on demand: a "Check now"
+  button on `/alerts` re-runs the saved search through `searchPairs()`,
+  filters the results with the pure, unit-tested
+  `findMatchingPairs()`/`pairMatchesCriteria()` in
+  `src/lib/alerts/evaluateAlert.ts`, and inserts an `alert_events` row for
+  any matching Pair not already recorded for that alert (deduped by
+  `Pair.id`, read back from each event's `pair_snapshot`). This is
+  deterministic and sufficient against fixed fixture data; a real
+  scheduled-evaluation engine is what M12/M13 would need to justify
+  actually standing up ingestion infrastructure.
+- **Alert criteria are intentionally minimal**: `maxNetCashCost` and/or
+  `minPairScore`, both optional but at least one required. This mirrors
+  the two numbers already most prominent on a `PairCard` (net cash cost,
+  Pair Score) rather than exposing every dimension of `HotelEconomics` as
+  a separate threshold.
+- **`alert_events.pair_snapshot` stores a small denormalized summary**
+  (route, hotel name, dates, net cash cost, score, and the `Pair.id` used
+  to link to `/pairs/[id]`) rather than the full `Pair` object, so
+  `/alerts` can render matches without re-running `searchPairs()` on every
+  page load — only "Check now" re-runs the search.

@@ -91,8 +91,15 @@ Homepage headline: "Find the trip your points and perks were meant for."
   `src/lib/providers/`. Swapping in a real provider means writing a new
   adapter that normalizes into the same domain types — never changing the
   domain types to match a provider's JSON shape.
-- No authentication is wired up yet. Wallet/preferences are local-only
-  until M10.
+- **Saved searches + alerts (`/alerts`) are real**: signed-in users save an
+  Explore "Pairs" search (from the Pairs tab) under a name, then attach a
+  threshold (max net cash cost and/or min Pair Score) as an alert. There is
+  **no background evaluation** — no cron/queue exists yet (Cloudflare
+  Workers/Queues are still a later milestone, not introduced
+  speculatively) — so alerts are evaluated on demand via a "Check now"
+  button, which re-runs the saved search and records any newly-matching
+  Pair as an `alert_events` row. See `src/lib/alerts/evaluateAlert.ts` (pure
+  matching logic) and `src/app/alerts/actions.ts`.
 - No email/Sentry/PostHog/Stripe integration exists yet; those are later
   milestones and must not be scaffolded speculatively.
 

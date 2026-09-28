@@ -128,3 +128,24 @@ export function exploreParamsToFlightSearchInput(params: ExploreSearchParams): F
     maxStops: params.maxStops,
   };
 }
+
+/**
+ * Canonical, string-only serialization of ExploreSearchParams — the same
+ * shape a URLSearchParams-backed page would produce. Used to persist a
+ * saved search's params as JSON and to round-trip them back through
+ * parseExploreSearchParams later, so a saved search gets the exact same
+ * defaulting/validation as a live URL rather than a second, divergent path.
+ */
+export function exploreParamsToRawRecord(params: ExploreSearchParams): Record<string, string> {
+  const record: Record<string, string> = {
+    tab: params.tab,
+    from: params.from,
+    to: params.to,
+    departFrom: params.departFrom,
+    departTo: params.departTo,
+  };
+  if (params.cabin) record.cabin = params.cabin;
+  if (params.maxPoints !== undefined) record.maxPoints = String(params.maxPoints);
+  if (params.maxStops !== undefined) record.maxStops = String(params.maxStops);
+  return record;
+}

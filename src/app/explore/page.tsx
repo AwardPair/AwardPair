@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CalendarRange, Hotel as HotelIcon, Plane } from "lucide-react";
 import { DEMO_AIRPORTS } from "@/lib/fixtures/airports";
+import { createClient } from "@/lib/supabase/server";
 import { searchFlights } from "@/lib/search/searchFlights";
 import { searchHotels } from "@/lib/search/searchHotels";
 import { searchPairs } from "@/lib/search/searchPairs";
@@ -9,6 +10,7 @@ import { ExploreControls } from "@/components/explore/ExploreControls";
 import { ExploreEmptyState } from "@/components/explore/EmptyState";
 import { FlightsTable } from "@/components/explore/FlightsTable";
 import { HotelsResults } from "@/components/explore/HotelsResults";
+import { SaveSearchForm } from "@/components/explore/SaveSearchForm";
 import { PairsResults } from "@/components/pairs/PairsResults";
 
 export const metadata: Metadata = {
@@ -56,6 +58,9 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
   const rawParams = await searchParams;
   const params = parseExploreSearchParams(rawParams);
 
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
       <div>
@@ -66,6 +71,8 @@ export default async function ExplorePage({ searchParams }: PageProps<"/explore"
       </div>
 
       <ExploreControls current={params} />
+
+      {params.tab === "pairs" ? <SaveSearchForm params={params} signedIn={Boolean(authData.user)} /> : null}
 
       {params.tab === "pairs" ? <PairsTabContent params={params} /> : null}
       {params.tab === "flights" ? <FlightsTabContent params={params} /> : null}
