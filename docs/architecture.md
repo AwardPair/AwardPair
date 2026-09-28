@@ -101,4 +101,38 @@ integration (`Poplex`, org `Card-scan`) is an unrelated pre-existing
 product. Rather than create a new project unprompted (external-account
 action) or misuse the unrelated one, schema work through M9 stays as
 migration files only. A real project will be created/designated when M10
-(auth) is reached, with the user's confirmation.
+(auth) is reached, with the user's confirmation. **Update:** the user is
+in the process of connecting the correct AwardPair Supabase account —
+once that's confirmed reachable, `supabase/migrations/0001_init.sql` gets
+applied to it and this note updates.
+
+### ADR-0002: Explore page, Pair detail, and Flights table implementation notes
+
+- `/explore`'s URL params use `departFrom`/`departTo` for the date range
+  (`src/lib/search/parseExploreSearchParams.ts`), since a range needs two
+  values where the spec only sketched a single `depart=`.
+- `from`/`to` validation is restricted to the airports the fixtures
+  actually support as origins/destinations (`JFK`/`EWR` and `HND`/`NRT`
+  respectively — see `ORIGIN_AIRPORT_CODES`/`DESTINATION_AIRPORT_CODES`),
+  not the full 4-key `DEMO_AIRPORTS` set, so the filter UI never offers a
+  combination that can't return results.
+- `/pairs/[id]` resolves by re-running `searchPairs` over the full
+  fixture universe (`React.cache`-wrapped) and matching `Pair.id`, since
+  Pairs are computed on demand rather than persisted — this only works
+  because the fixture data is fixed; it will need to change once a real
+  provider makes the flight/hotel universe too large to brute-force.
+- Its "not found" state renders inline with a 200 status rather than
+  calling Next's `notFound()`, to guarantee no raw exception/crash is
+  ever shown for a bad id; a real 404 status could be layered on later
+  via `notFound()` + `not-found.tsx` without changing the visible UI.
+- The Hotels tab shows each property's reference cost computed directly
+  from the rate's public fields (nights + taxes + fees), not via
+  `computeHotelEconomics` — that function needs a specific program/card
+  context to apply credits/offers, which the Hotels tab intentionally
+  doesn't have (it shows the property in isolation; Pairs is where
+  wallet-specific economics apply).
+- The Flights table uses `@tanstack/react-table` v9 (installed version),
+  whose API (`useTable`/`tableFeatures`/`createColumnHelper(...).columns(...)`)
+  differs materially from the more commonly documented v8
+  (`useReactTable`/`getCoreRowModel`). Follow the installed package's own
+  bundled docs, not v8 examples, for any future changes here.
