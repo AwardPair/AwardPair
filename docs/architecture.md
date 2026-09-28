@@ -228,3 +228,32 @@ done here. The service role key was not fetched or stored.
   to link to `/pairs/[id]`) rather than the full `Pair` object, so
   `/alerts` can render matches without re-running `searchPairs()` on every
   page load — only "Check now" re-runs the search.
+
+### ADR-0005: M14 production hardening (error boundaries, headers, loading states)
+
+- **`src/app/error.tsx`** is a route-segment error boundary (Client
+  Component, per the App Router contract) with a "Try again" (`reset()`)
+  and a "Back to Explore" action. **`src/app/global-error.tsx`** covers the
+  case where the root layout itself throws — it has to render its own
+  `<html>`/`<body>` since it replaces the layout entirely, so it uses
+  inline styles rather than Tailwind classes: `globals.css` is imported by
+  `layout.tsx`, which isn't rendered when `global-error.tsx` is. Both log
+  via `console.error` only — no Sentry/error-reporting integration exists
+  yet and CLAUDE.md says not to scaffold one speculatively.
+- **`src/app/not-found.tsx`** is the app-wide 404 for genuinely unmatched
+  routes. This is distinct from `/pairs/[id]`'s own inline "Pair not
+  found" state (ADR-0002), which intentionally stays a 200 — a bad Pair id
+  is an expected, normal outcome of brute-force-resolving against fixture
+  data, not a real 404.
+- **Security headers** (`X-Content-Type-Options: nosniff`,
+  `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`,
+  a minimal `Permissions-Policy`) are set via `headers()` in
+  `next.config.ts` for every route. No CSP yet — the app currently has no
+  third-party scripts/styles to whitelist, and a CSP written without real
+  usage data tends to either be too loose to matter or break something;
+  revisit once there's a concrete external resource to scope it around.
+- **`loading.tsx` added for `/explore`, `/pair-calendar`, and
+  `/pairs/[id]`** — the three routes that run a real `searchPairs()`/fixture
+  search server-side — using a shared `LoadingState` component. `/wallet`
+  and `/alerts` were left without one: their Supabase queries are simple
+  single-table reads, not worth a dedicated skeleton.

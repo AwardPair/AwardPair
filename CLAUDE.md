@@ -102,6 +102,13 @@ Homepage headline: "Find the trip your points and perks were meant for."
   matching logic) and `src/app/alerts/actions.ts`.
 - No email/Sentry/PostHog/Stripe integration exists yet; those are later
   milestones and must not be scaffolded speculatively.
+- **Basic production hardening is in place**: app-wide `error.tsx` /
+  `global-error.tsx` / `not-found.tsx`, `loading.tsx` on the three routes
+  that run a real fixture search (`/explore`, `/pair-calendar`,
+  `/pairs/[id]`), and baseline security headers (`X-Content-Type-Options`,
+  `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`) set in
+  `next.config.ts`. No CSP yet and no error-reporting integration (still
+  console-only) — see docs/architecture.md ADR-0005.
 
 ## Working conventions
 
