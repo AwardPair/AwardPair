@@ -17,7 +17,8 @@ npm install
 npm run dev        # start the dev server
 npm run typecheck  # tsc --noEmit
 npm run lint       # eslint
-npm run test        # vitest
+npm run test        # vitest (unit/integration)
+npm run test:e2e    # playwright (builds, starts on :3100, runs e2e/)
 npm run build       # production build
 ```
 
